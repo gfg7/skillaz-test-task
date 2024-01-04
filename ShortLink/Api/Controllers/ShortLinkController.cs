@@ -1,31 +1,37 @@
-using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using ShortLink.Api.Models;
+using ShortLink.Services;
+using ShortLink.Services.Args;
 
 namespace ShortLink.Api.Controllers
 {
     [ApiController]
     public class ShortLinkController
     {
-        public ShortLinkController()
+        private readonly ShortLinkService _shortLinkService;
+        public ShortLinkController(ShortLinkService shortLinkService)
         {
-
+            _shortLinkService = shortLinkService;
         }
 
         [HttpPost]
-        public Task<ShortenedLink> CreateShortLink(OriginalLink input)
+        public async Task<ShortenedLink> CreateShortLink(OriginalLink input)
         {
-            return null;
+            var args = new GenerateShortLinkArgs(input.Link);
+            var result = await _shortLinkService.CreateShortLink(args);
+            return ShortenedLinkMapping.FromDomain(result);
         }
 
-        public Task<string> GetOriginalLink([FromRoute] string shortLink)
+        public async Task<string> GetOriginalLink([FromRoute] string shortLink)
         {
-            return null;
+            var result = await _shortLinkService.GetByShortLink(shortLink);
+            return result.OriginalLink;
         }
 
-        public Task<ShortenedLinkCounter[]> GetShortenedLinks()
+        public async Task<ShortenedLinkCounter[]> GetShortenedLinks()
         {
-            return null;
+            var result = await _shortLinkService.GetShortenedLinks();
+            return result.Select(x => ShortenedLinkCounterMapping.FromDomain(x)).ToArray();
         }
     }
 }
