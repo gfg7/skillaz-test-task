@@ -10,6 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ShortLinkService>();
+builder.Services.AddScoped<IShortLinkGenerator, ShortLinkGenerator>();
 
 var app = builder.Build();
 
