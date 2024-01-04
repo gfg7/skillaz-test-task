@@ -30,9 +30,10 @@ namespace ShortLink.Services
             return result;
         }
 
-        public async Task<ShortenedLinkEntity[]> GetShortenedLinks()
+        public async Task<ShortenedLinkEntity[]> GetShortenedLinks(int take, int page)
         {
-            return await _shortLinkRepository.GetShortLinks();
+            var filterArgs = new ShortLinkFilterArgs(take, page);
+            return await _shortLinkRepository.GetShortLinks(filterArgs);
         }
     }
 }

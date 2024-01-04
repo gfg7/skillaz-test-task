@@ -7,6 +7,6 @@ namespace ShortLink.Services
         Task<ShortenedLinkEntity> SaveShortLink(SaveShortLinkArgs args);
         Task<ShortenedLinkEntity?> GetByShortLink(string shortLink);
         Task IncrementCounter(string shortLink);
-        Task<ShortenedLinkEntity[]> GetShortLinks();
+        Task<ShortenedLinkEntity[]> GetShortLinks(ShortLinkFilterArgs args);
     }
 }
