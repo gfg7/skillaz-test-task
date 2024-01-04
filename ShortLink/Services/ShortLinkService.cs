@@ -1,22 +1,38 @@
 using ShortLink.Services.Args;
+using ShortLink.Services.Errors;
 
 namespace ShortLink.Services
 {
     public class ShortLinkService
     {
-        public Task<ShortenedLinkEntity> CreateShortLink(GenerateShortLinkArgs args)
+        private readonly IShortLinkRepository _shortLinkRepository;
+        private readonly IShortLinkGenerator _shortLinkGenerator;
+
+        public ShortLinkService(IShortLinkRepository shortLinkRepository, IShortLinkGenerator shortLinkGenerator)
         {
-            return null;
+            _shortLinkRepository = shortLinkRepository;
+            _shortLinkGenerator = shortLinkGenerator;
         }
 
-        public Task<ShortenedLinkEntity> GetByShortLink(string shortLink)
+        public async Task<ShortenedLinkEntity> CreateShortLink(GenerateShortLinkArgs args)
         {
-            return null;
+            var shortLink = await _shortLinkGenerator.GenerateShortLink(args);
+            var saveArgs = new SaveShortLinkArgs(args.OriginalLink, shortLink);
+            
+            return await _shortLinkRepository.SaveShortLink(saveArgs);
         }
 
-        public Task<ShortenedLinkEntity[]> GetShortenedLinks()
+        public async Task<ShortenedLinkEntity> GetByShortLink(string shortLink)
         {
-            return null;
+            var result = await _shortLinkRepository.GetByShortLink(shortLink) ?? throw new ShortLinkNotFoundError(shortLink);
+
+            await _shortLinkRepository.IncrementCounter(shortLink);
+            return result;
+        }
+
+        public async Task<ShortenedLinkEntity[]> GetShortenedLinks()
+        {
+            return await _shortLinkRepository.GetShortLinks();
         }
     }
 }
