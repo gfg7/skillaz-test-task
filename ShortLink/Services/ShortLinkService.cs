@@ -1,5 +1,6 @@
 using ShortLink.Services.Args;
 using ShortLink.Services.Errors;
+using ShortLink.Utils;
 
 namespace ShortLink.Services
 {
@@ -16,10 +17,22 @@ namespace ShortLink.Services
 
         public async Task<ShortenedLinkEntity> CreateShortLink(GenerateShortLinkArgs args)
         {
-            var shortLink = await _shortLinkGenerator.GenerateShortLink(args);
-            var saveArgs = new SaveShortLinkArgs(args.OriginalLink, shortLink);
-            
-            return await _shortLinkRepository.SaveShortLink(saveArgs);
+            var attempts = Convert.ToInt32(EnvService.GetVariable("RETRY_COUNT"));
+            int attemptCount = 0;
+            do
+            {
+                try
+                {
+                    attemptCount++;
+                    var shortLink = await _shortLinkGenerator.GenerateShortLink(args);
+                    var saveArgs = new SaveShortLinkArgs(args.OriginalLink, shortLink);
+
+                    return await _shortLinkRepository.SaveShortLink(saveArgs);
+                }
+                catch { }
+            } while (attemptCount < attempts);
+
+            throw new GenerateShortLinkAttemptExceededError(args.OriginalLink);
         }
 
         public async Task<ShortenedLinkEntity> GetByShortLink(string shortLink)
