@@ -6,6 +6,7 @@ using ShortLink.Services.Args;
 namespace ShortLink.Api.Controllers
 {
     [ApiController]
+    [Route("[controller]")]
     public class ShortLinkController
     {
         private readonly ShortLinkService _shortLinkService;
@@ -14,23 +15,25 @@ namespace ShortLink.Api.Controllers
             _shortLinkService = shortLinkService;
         }
 
-        [HttpPost]
-        public async Task<ShortenedLink> CreateShortLink(OriginalLink input)
+        [HttpPost("create")]
+        public async Task<ShortenedLink> CreateShortLink([FromBody] OriginalLink input)
         {
             var args = new GenerateShortLinkArgs(input.Link);
             var result = await _shortLinkService.CreateShortLink(args);
             return ShortenedLinkMapping.FromDomain(result);
         }
 
-        public async Task<string> GetOriginalLink([FromRoute] string shortLink)
+        [HttpGet("{link}")]
+        public async Task<IActionResult> GetOriginalLink([FromRoute] string link)
         {
-            var result = await _shortLinkService.GetByShortLink(shortLink);
-            return result.OriginalLink;
+            var result = await _shortLinkService.GetByShortLink(link);
+            return new RedirectResult(result.OriginalLink);
         }
 
-        public async Task<ShortenedLinkCounter[]> GetShortenedLinks()
+        [HttpGet("list")]
+        public async Task<ShortenedLinkCounter[]> GetShortenedLinks(int take = 10, int page = 0)
         {
-            var result = await _shortLinkService.GetShortenedLinks();
+            var result = await _shortLinkService.GetShortenedLinks(take, page);
             return result.Select(x => ShortenedLinkCounterMapping.FromDomain(x)).ToArray();
         }
     }
