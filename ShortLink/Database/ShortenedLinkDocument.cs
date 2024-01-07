@@ -8,14 +8,16 @@ namespace ShortLink.Database
         [BsonId]
         public string ShortLink { get; init; } = null!;
         public string OriginalLink { get; init; } = null!;
+        public string UserId { get; init; } = null!;
         public int Counter { get; init; } = 0;
 
-        public static ShortenedLinkDocument Create(string shortLink, string originalLink)
+        public static ShortenedLinkDocument Create(string shortLink, string originalLink, string userId)
         {
             return new ShortenedLinkDocument()
             {
                 ShortLink = shortLink,
-                OriginalLink = originalLink
+                OriginalLink = originalLink,
+                UserId = userId
             };
         }
     }
@@ -24,7 +26,7 @@ namespace ShortLink.Database
     {
         public static ShortenedLinkEntity ToDomain(this ShortenedLinkDocument document)
         {
-            return new ShortenedLinkEntity(document.OriginalLink, document.ShortLink, document.Counter);
+            return new ShortenedLinkEntity(document.OriginalLink, document.ShortLink, document.UserId, document.Counter);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace ShortLink.Database
         {
             var db = _dbFactory.Create();
             var documents = await db.ShortLinks.Find(
-                _f.Empty
+                _f.Eq(x=> x.UserId, args.UserId)
             )
             .Skip(args.Take)
             .Limit(args.Page * args.Take - 1)
@@ -50,7 +50,7 @@ namespace ShortLink.Database
         public async Task<ShortenedLinkEntity> SaveShortLink(SaveShortLinkArgs args)
         {
             var db = _dbFactory.Create();
-            var document = ShortenedLinkDocument.Create(args.ShortLink, args.OriginalLink);
+            var document = ShortenedLinkDocument.Create(args.ShortLink, args.OriginalLink, args.UserId);
             await db.ShortLinks.InsertOneAsync(document);
 
             return document.ToDomain();
