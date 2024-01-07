@@ -26,6 +26,7 @@ builder.Services.AddScoped<ICurrentUserService>(o =>
 
 builder.Services.AddScoped<DbFactory>(x => new DbFactory(EnvService.GetVariable("CONNECTION_STRING")));
 builder.Services.AddScoped<IShortLinkRepository, ShortLinkRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ShortLinkService>();
 builder.Services.AddScoped<IShortLinkGenerator, ShortLinkGenerator>();
 

@@ -12,5 +12,6 @@ namespace ShortLink.Database
         }
 
         public IMongoCollection<ShortenedLinkDocument> ShortLinks => _mongoDatabase.GetCollection<ShortenedLinkDocument>(nameof(ShortLinks));
+        public IMongoCollection<UserDocument> Users => _mongoDatabase.GetCollection<UserDocument>(nameof(Users));
     }
 }

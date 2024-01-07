@@ -31,8 +31,8 @@ namespace ShortLink.Database
             var documents = await db.ShortLinks.Find(
                 _f.Eq(x=> x.UserId, args.UserId)
             )
-            .Skip(args.Take)
-            .Limit(args.Page * args.Take - 1)
+            .Skip(args.Page * args.Take)
+            .Limit(args.Take)
             .ToListAsync();
 
             return documents.Select(x => x.ToDomain()).ToArray();
