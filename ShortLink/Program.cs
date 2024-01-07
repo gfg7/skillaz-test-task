@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using ShortLink.Api.Identity;
 using ShortLink.Api.Middleware;
 using ShortLink.Database;
 using ShortLink.Services;
-using ShortLink.Services.Errors;
 using ShortLink.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +14,15 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService>(o =>
+{
+    var user = o.GetService<IHttpContextAccessor>()?.HttpContext?.User!;
+    return new CurrentUserService(user);
+});
 
 builder.Services.AddScoped<DbFactory>(x => new DbFactory(EnvService.GetVariable("CONNECTION_STRING")));
 builder.Services.AddScoped<IShortLinkRepository, ShortLinkRepository>();
@@ -34,7 +42,7 @@ app.UseExceptionHandlerExtension();
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseMiddleware<CookieMiddleware>();
 
 app.MapControllers();
 
