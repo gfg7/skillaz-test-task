@@ -8,11 +8,15 @@ namespace ShortLink.Services
     {
         private readonly IShortLinkRepository _shortLinkRepository;
         private readonly IShortLinkGenerator _shortLinkGenerator;
+        private readonly ICurrentUserService _currentUserService;
 
-        public ShortLinkService(IShortLinkRepository shortLinkRepository, IShortLinkGenerator shortLinkGenerator)
+        public ShortLinkService(ICurrentUserService currentUserService,
+                                IShortLinkRepository shortLinkRepository,
+                                IShortLinkGenerator shortLinkGenerator)
         {
             _shortLinkRepository = shortLinkRepository;
             _shortLinkGenerator = shortLinkGenerator;
+            _currentUserService = currentUserService;
         }
 
         public async Task<ShortenedLinkEntity> CreateShortLink(GenerateShortLinkArgs args)
@@ -25,7 +29,7 @@ namespace ShortLink.Services
                 {
                     attemptCount++;
                     var shortLink = await _shortLinkGenerator.GenerateShortLink(args);
-                    var saveArgs = new SaveShortLinkArgs(args.OriginalLink, shortLink);
+                    var saveArgs = new SaveShortLinkArgs(args.OriginalLink, shortLink, _currentUserService.UserId);
 
                     return await _shortLinkRepository.SaveShortLink(saveArgs);
                 }
@@ -45,7 +49,7 @@ namespace ShortLink.Services
 
         public async Task<ShortenedLinkEntity[]> GetShortenedLinks(int take, int page)
         {
-            var filterArgs = new ShortLinkFilterArgs(take, page);
+            var filterArgs = new ShortLinkFilterArgs(_currentUserService.UserId, take, page);
             return await _shortLinkRepository.GetShortLinks(filterArgs);
         }
     }

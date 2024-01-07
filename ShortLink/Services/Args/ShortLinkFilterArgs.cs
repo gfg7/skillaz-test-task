@@ -1,4 +1,4 @@
 namespace ShortLink.Services.Args
 {
-    public record ShortLinkFilterArgs(int Take, int Page);
+    public record ShortLinkFilterArgs(string UserId, int Take, int Page);
 }
