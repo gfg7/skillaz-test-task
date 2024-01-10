@@ -1,4 +1,5 @@
 using MongoDB.Driver;
+using ShortLink.Api.Support;
 using ShortLink.Services;
 using ShortLink.Services.Args;
 
@@ -9,10 +10,12 @@ namespace ShortLink.Database
         private readonly DbFactory _dbFactory;
         private readonly UpdateDefinitionBuilder<ShortenedLinkDocument> _u = Builders<ShortenedLinkDocument>.Update;
         private readonly FilterDefinitionBuilder<ShortenedLinkDocument> _f = Builders<ShortenedLinkDocument>.Filter;
+        private readonly CancellationToken _cancellationToken;
 
-        public ShortLinkRepository(DbFactory dbFactory)
+        public ShortLinkRepository(DbFactory dbFactory, CancellationTokenProvider cancellationTokenProvider)
         {
             _dbFactory = dbFactory;
+            _cancellationToken = cancellationTokenProvider.Token;
         }
 
         public async Task<ShortenedLinkEntity?> GetByShortLink(string shortLink)
@@ -33,7 +36,7 @@ namespace ShortLink.Database
             )
             .Skip(args.Page * args.Take)
             .Limit(args.Take)
-            .ToListAsync();
+            .ToListAsync(_cancellationToken);
 
             return documents.Select(x => x.ToDomain()).ToArray();
         }
