@@ -21,9 +21,10 @@ namespace ShortLink.Database
         public async Task<ShortenedLinkEntity?> GetByShortLink(string shortLink)
         {
             var db = _dbFactory.Create();
-            var document = await db.ShortLinks.Find(
-                _f.Eq(x => x.ShortLink, shortLink)
-            ).FirstOrDefaultAsync();
+            var document = await db.ShortLinks.FindOneAndUpdateAsync(
+                _f.Eq(x => x.ShortLink, shortLink),
+                _u.Inc(x => x.Counter, 1)
+            );
 
             return document?.ToDomain();
         }
@@ -32,22 +33,13 @@ namespace ShortLink.Database
         {
             var db = _dbFactory.Create();
             var documents = await db.ShortLinks.Find(
-                _f.Eq(x=> x.UserId, args.UserId)
+                _f.Eq(x => x.UserId, args.UserId)
             )
             .Skip(args.Page * args.Take)
             .Limit(args.Take)
             .ToListAsync(_cancellationToken);
 
             return documents.Select(x => x.ToDomain()).ToArray();
-        }
-
-        public async Task IncrementCounter(string shortLink)
-        {
-            var db = _dbFactory.Create();
-            await db.ShortLinks.UpdateOneAsync(
-                _f.Eq(x => x.ShortLink, shortLink),
-                _u.Inc(e => e.Counter, 1)
-            );
         }
 
         public async Task<ShortenedLinkEntity> SaveShortLink(SaveShortLinkArgs args)

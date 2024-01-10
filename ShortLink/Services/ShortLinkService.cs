@@ -41,10 +41,7 @@ namespace ShortLink.Services
 
         public async Task<ShortenedLinkEntity> GetByShortLink(string shortLink)
         {
-            var result = await _shortLinkRepository.GetByShortLink(shortLink) ?? throw new ShortLinkNotFoundError(shortLink);
-
-            await _shortLinkRepository.IncrementCounter(shortLink);
-            return result;
+            return await _shortLinkRepository.GetByShortLink(shortLink) ?? throw new ShortLinkNotFoundError(shortLink);
         }
 
         public async Task<ShortenedLinkEntity[]> GetShortenedLinks(int take, int page)
