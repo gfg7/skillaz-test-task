@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using ShortLink.Api.Configuration;
 using ShortLink.Api.Identity;
-using ShortLink.Api.Middleware;
 using ShortLink.Api.Support;
 using ShortLink.Database;
 using ShortLink.Services;
@@ -19,11 +19,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUserService>(o =>
-{
-    var user = o.GetService<IHttpContextAccessor>()?.HttpContext?.User!;
-    return new CurrentUserService(user);
-});
+builder.Services.AddScoped<ICurrentUserService, SignInService>();
+builder.Services.AddScoped<IAuthService, SignInService>();
 
 builder.Services.AddScoped<CancellationTokenProvider>();
 builder.Services.AddScoped<DbFactory>(x => new DbFactory(EnvService.GetVariable("CONNECTION_STRING")));
@@ -44,11 +41,6 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandlerExtension();
 
 app.UseHttpsRedirection();
-
-// app.UseWhen(context => true, a =>
-// {
-//     a.UseMiddleware<CookieMiddleware>();
-// });
 
 app.MapControllers();
 

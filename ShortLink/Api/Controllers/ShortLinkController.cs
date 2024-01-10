@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using ShortLink.Api.Identity;
 using ShortLink.Api.Models;
 using ShortLink.Services;
 using ShortLink.Services.Args;
@@ -10,14 +12,17 @@ namespace ShortLink.Api.Controllers
     public class ShortLinkController
     {
         private readonly ShortLinkService _shortLinkService;
-        public ShortLinkController(ShortLinkService shortLinkService)
+        private readonly IAuthService _authService;
+        public ShortLinkController(ShortLinkService shortLinkService, IAuthService authService)
         {
             _shortLinkService = shortLinkService;
+            _authService = authService;
         }
 
         [HttpPost("create")]
         public async Task<ShortenedLink> CreateShortLink([FromBody] OriginalLink input)
         {
+            await _authService.SignIn();
             var args = new GenerateShortLinkArgs(input.Link);
             var result = await _shortLinkService.CreateShortLink(args);
             return ShortenedLinkMapping.FromDomain(result);
@@ -33,6 +38,7 @@ namespace ShortLink.Api.Controllers
         [HttpGet("list")]
         public async Task<ShortenedLinkCounter[]> GetShortenedLinks(int take = 10, int page = 0)
         {
+            await _authService.SignIn();
             var result = await _shortLinkService.GetShortenedLinks(take, page);
             return result.Select(x => ShortenedLinkCounterMapping.FromDomain(x)).ToArray();
         }

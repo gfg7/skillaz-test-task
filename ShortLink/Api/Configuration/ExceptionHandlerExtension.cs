@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.Features;
 using ShortLink.Services.Errors;
 
-namespace ShortLink.Api.Middleware
+namespace ShortLink.Api.Configuration
 {
     public static class ExceptionHandlerExtension
     {
