@@ -2,7 +2,7 @@ using ShortLink.Services;
 
 namespace ShortLink.Api.Models
 {
-    public record ShortenedLinkCounter(string ShortLink, int Counter = 0);
+    public record ShortenedLinkCounter(string ShortLink, string OriginalLink, int Counter = 0);
 
     public static class ShortenedLinkCounterMapping
     {
@@ -10,6 +10,7 @@ namespace ShortLink.Api.Models
         {
             return new ShortenedLinkCounter(
                 entity.ShortLink,
+                entity.OriginalLink,
                 entity.Counter
             );
         }
