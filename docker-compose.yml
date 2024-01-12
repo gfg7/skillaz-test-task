@@ -12,6 +12,9 @@ services:
       - 5276:5276
     depends_on:
       - mongodb
+    environment:
+      - CONNECTION_STRING=mongodb://admin:password@mongodb:27017
+      - RETRY_COUNT=3
 
   mongodb:
     image: mongo:4.4.17-focal
